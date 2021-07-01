@@ -2,7 +2,7 @@ const electron = require('electron');
 const url = require('url');
 const path = require('path');
 
-const {app, BrowserWindow, Menu, Tray} = electron;
+const {app, BrowserWindow, Menu, Tray, ipcMain} = electron;
 let tray = null;
 let mainWindow;
 let addWindow;
@@ -30,6 +30,7 @@ app.on('ready', function (){
       width: 800,
       height: 600,
       webPreferences: {
+         nodeIntegration:true,
          preload: path.join(__dirname, 'preload.js')
       }
    });
@@ -52,22 +53,33 @@ app.on('ready', function (){
 
 //handle create add window for create new item
 function createAddWindow() {
-   mainWindow = new BrowserWindow({
+   addWindow = new BrowserWindow({
       width: 400,
       height: 400,
-      title: 'Add Shopping List Item'
+      title: 'Add Shopping List Item',
+      webPreferences: {
+         nodeIntegration:true,
+         contextIsolation: false,
+      }
    });
    //load html into window
-   mainWindow.loadURL(url.format({
+   addWindow.loadURL(url.format({
       pathname: path.join(__dirname, 'addWindow.html'),
       protocol: 'file:',
       slashes: true
    }));
    //Garbage collection handle (for optimize)
-   addWindow.on('close', function (){
+   addWindow?.on('close', function (){
       addWindow = null;
    });
 }
+
+// Catch item:add
+/*ipcMain.on('item:add', function (e, item){
+   console.log(item);
+   mainWindow.webContents.send('item:add', item);
+   addWindow.close();
+});*/
 
 //menu template
 const mainMenuTemplate = [
@@ -102,5 +114,19 @@ if (process.platform === 'darwin'){
 
 //add developer tools item if not in production
 if (process.env.NODE_ENV !== 'production'){
-   mainMenuTemplate
+   mainMenuTemplate.push({
+      label: 'Developer Tools',
+      submenu: [
+         {
+            label: 'Toggle DevTools',
+            accelerator: process.platform === 'darwin' ? 'Command+I' : 'Ctrl+I',
+            click(item, focusedWindow){
+               focusedWindow.toggleDevTools();
+            }
+         },
+         {
+            role: 'reload'
+         }
+      ]
+   });
 }
