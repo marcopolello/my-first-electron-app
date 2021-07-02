@@ -2,11 +2,52 @@
 <html lang="en">
 <head>
     <title>Shopping list</title>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="node_modules/materialize-css/dist/css/materialize.min.css">
 </head>
 <body>
+<div>
+    <nav>
+        <div class="nav-wrapper">
+            <a class="brand-logo center">Shopping List</a>
+        </div>
+    </nav>
+    <ul></ul>
+</div>
 
-<h1>This is a heading</h1>
-<p>This is a paragraph.</p>
+<script>
+    const electron = require('electron');
+    const {ipcRenderer} = electron;
+    const ul = document.querySelector('ul');
 
+    //Add Item
+    ipcRenderer.on('item:add', function (e,item){
+        ul.className= 'collection';
+        const li = document.createElement('li');
+        li.className = 'collection-item';
+        const itemText = document.createTextNode(item);
+        li.appendChild(itemText);
+        ul.appendChild(li);
+    });
+
+    //Clear all Items
+    ipcRenderer.on('item:clear', function (e,item){
+        ul.innerHTML = '';
+    });
+
+    //remove item
+    ul.addEventListener('dblclick', removeItem);
+    function removeItem(e) {
+        e.target.remove();
+        if (ul.children.length === 0){
+            ul.className = '';
+        }
+    }
+
+</script>
+<script>let $ = require('jquery');</script>
+<script>require('popper.js');</script>
+<script>require('bootstrap');</script>
+<script>require('materialize-css');</script>
 </body>
 </html>

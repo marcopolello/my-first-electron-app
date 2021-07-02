@@ -2,6 +2,9 @@ const electron = require('electron');
 const url = require('url');
 const path = require('path');
 
+//SET ENV (decommentare per togliere dev tools)
+process.env.NODE_ENV = 'production';
+
 const {app, BrowserWindow, Menu, Tray, ipcMain} = electron;
 let tray = null;
 let mainWindow;
@@ -13,7 +16,7 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 app.whenReady().then(() => {
-   tray = new Tray(path.join(__dirname, '../my-electron-app/app.ico'));
+   tray = new Tray(path.join(__dirname, 'app.ico'));
    const contextMenu = Menu.buildFromTemplate([
       { label: 'Item1', type: 'radio' },
       { label: 'Item2', type: 'radio' },
@@ -31,6 +34,7 @@ app.on('ready', function (){
       height: 600,
       webPreferences: {
          nodeIntegration:true,
+         contextIsolation: false,
          preload: path.join(__dirname, 'preload.js')
       }
    });
@@ -75,11 +79,11 @@ function createAddWindow() {
 }
 
 // Catch item:add
-/*ipcMain.on('item:add', function (e, item){
-   console.log(item);
+ipcMain.on('item:add', function (e, item){
+   //console.log(item);
    mainWindow.webContents.send('item:add', item);
    addWindow.close();
-});*/
+});
 
 //menu template
 const mainMenuTemplate = [
@@ -88,12 +92,16 @@ const mainMenuTemplate = [
       submenu: [
          {
             label: 'Add Item',
+            accelerator: process.platform === 'darwin' ? 'Command+1' : 'Ctrl+1',
             click(){
                createAddWindow();
             }
          },
          {
-            label: 'Clear Items'
+            label: 'Clear All Items',
+            click(){
+               mainWindow.webContents.send('item:clear');
+            }
          },
          {
             label: 'Quit',

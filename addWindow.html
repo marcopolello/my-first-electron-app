@@ -2,15 +2,18 @@
 <html lang="en">
 <head>
     <title>Add Shopping List Item</title>
+    <link rel="stylesheet" href="node_modules/materialize-css/dist/css/materialize.min.css">
 </head>
 <body>
+<div class="container">
     <form class="form">
         <div>
             <label>Enter Item</label>
             <input type="text" id="item" autofocus>
         </div>
-        <button type="submit">add Item</button>
+        <button class="btn waves-effect waves-light" type="submit">add Item</button>
     </form>
+</div>
 
     <script>
         const electron = require('electron');
@@ -20,11 +23,11 @@
 
         function submitForm(e){
             e.preventDefault();
-            console.log(123);
-            /*const item = document.querySelector('#item').value;
-            ipcRenderer.send('item:add', item);*/
+            const item = document.querySelector('#item').value;
+            ipcRenderer.send('item:add', item);
         }
 
     </script>
+<script>require('materialize-css');</script>
 </body>
 </html>
